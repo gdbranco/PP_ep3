@@ -24,7 +24,11 @@ int main()
 			//i++;
 		//}
 		//cout << endl;
-		result = soma(0,tam_vetor,vetor);
+		result = soma(0,4,vetor);
+		result += soma(4,7,vetor);
+		//result += soma(4,6,vetor);
+		//result += soma(6,8,vetor);
+
 		//i=0;
 		//while(i<tam_vetor)
 		//{
