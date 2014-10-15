@@ -4,91 +4,78 @@
 #include <fstream>
 #define ROOT 0
 using namespace std;
-float soma_tree(unsigned int inicio, unsigned int tam_vetor,float *vetor);
+float soma_tree(unsigned int tam_vetor,float *vetor);
 int main()
 {
-	//if(argc < 2)
-		//return -1;
-	unsigned int tam_vetor=8,i=0;
+	unsigned int tam_vetor;
 	float *vetor=NULL,elemento;
 	int size,rank;
-	unsigned int local_tamvetor,local_inicio,local_fim;
-	//fstream input;
-	//input.open(argv[1]);
 	MPI::Status mpi_status;
 	MPI::Init();
 	rank = MPI::COMM_WORLD.Get_rank();
 	size = MPI::COMM_WORLD.Get_size();
-      //input >> tam_vetor;
 	if(rank==ROOT)
 	{
 		  cin >> tam_vetor;
 	}
 	MPI::COMM_WORLD.Bcast(&tam_vetor,1,MPI::INT,0);
-	//MPI::COMM_WORLD.Barrier();
-	vetor = (float*)malloc(tam_vetor*sizeof(float));
+	int elementos_por_proc = tam_vetor/size;
+	vetor = new float[tam_vetor];
 	if(rank==ROOT)
-	{ 
-	    while(i<tam_vetor)
-	    {
-		    cin >> elemento;
-		    *(vetor+i) = elemento;
-		    i++;
-	    }
+	{
+		for(unsigned int i=0;i<tam_vetor;i++)
+		{
+			cin >> elemento;
+			vetor[i] = elemento;
+		}
 	}
 	MPI::COMM_WORLD.Bcast(vetor,tam_vetor,MPI::FLOAT,0);
-	local_tamvetor = tam_vetor/size; //Ajeita os indices para cada processo
-	local_inicio = rank*local_tamvetor;
-	local_fim   = (rank+1)*local_tamvetor;
-	if(rank==size-1)
+	float *sub_vetor = new float[elementos_por_proc];
+	MPI::COMM_WORLD.Scatter(vetor,elementos_por_proc,MPI::FLOAT,sub_vetor,elementos_por_proc,MPI::FLOAT,0);
+	float sub_soma = soma_tree(elementos_por_proc,sub_vetor);
+	float *somas = NULL;
+	if(rank==ROOT)
 	{
-		  local_fim = tam_vetor+1; 
+		somas = new float[size];
 	}
-	//Guarda a soma parcial em uma variavel local a cada e faz a do root(0)
-	float total_result;
-	total_result = soma_tree(local_inicio,local_fim,vetor);
-	if(rank!=ROOT)
+	MPI::COMM_WORLD.Gather(&sub_soma,1,MPI::FLOAT,somas,1,MPI::FLOAT,0);
+	if(rank==ROOT)
 	{
-		MPI::COMM_WORLD.Send(&total_result,1,MPI::FLOAT,0,0);
+		float soma = soma_tree(size,somas);
+		cout << "SOMA = " << soma << endl;
+		//for(int i=0;i<size;i++)
+		//{
+			//cout << somas[i] << endl;
+		//}
+		delete somas;
+		delete vetor;
 	}
-	else
-	{
-		//Recebe os parciais e soma ao total_result ja calculado do 0
-		float tmp;
-		for(unsigned int source = 1;source < (unsigned)size; source++)
-		{
-			MPI::COMM_WORLD.Recv(&tmp,1,MPI::FLOAT,source,0,mpi_status);
-
-			total_result += tmp;
-		}
-		cout << total_result << endl;
-	}
-	
+	delete sub_vetor;
+	MPI::COMM_WORLD.Barrier();
 	MPI::Finalize();
-	//input.close();
-	//free(vetor);
 	return 0;
 }
-float soma_tree(unsigned int inicio, unsigned int tam_vetor,float *vetor)
+float soma_tree(unsigned int tam_vetor,float *vetor)
 {
-	unsigned int i,c=0,l=2,j=0,k=1;
-	while(j<(float)tam_vetor/2)
+	unsigned int i,l=2,k=1;
+	//cout << inicio << ' ' << tam_vetor << endl;
+	//cout << vetor[inicio] << ' ' << vetor[tam_vetor] << endl;
+	while((tam_vetor+k)/l>=1)
 	{
-		i=inicio;
-		c=0; 
+		i=0; 
 		//cout << endl;
-		while(i<tam_vetor && i+k<tam_vetor)
+		//cin.get();
+		while(i+k<tam_vetor)
 		{
 			//if(i+k<tam_vetor)
 			//{
 				//cout << "Vetor[" << i << "] :" << vetor[i] << " vetor[" << i+k << "] :" << vetor[i+k];
 				//cout << "vetor[" << i << "] : " << vetor[i] << endl;
-				vetor[i] = vetor[i] + vetor[i+k];
+				vetor[i] +=  vetor[i+k];
 				//cout << " = Vetor[" << i << "]c :" << vetor[i] << endl;
 				//cout << endl;
-			//}
+		//}
 			i+=l;
-			c++;
 		}
 		//unsigned int t=0;
 		//while(t<tam_vetor)
@@ -96,46 +83,8 @@ float soma_tree(unsigned int inicio, unsigned int tam_vetor,float *vetor)
 			//cout << vetor[t]<< ' ';
 			//t++;
 		//}
-		j++;
 		k*=2;
 		l*=2;
 	}
-	return vetor[inicio];
+	return vetor[0];
 }
-	//if(!rank)
-	//{
-		  ////cin >> tam_vetor;
-		  ////vetor = (float*)malloc(tam_vetor*sizeof(float));
-		  ////if(vetor)
-		  ////{
-			  ////while(i<tam_vetor)
-			  ////{
-				  ////cin >> elemento;
-				  ///[>(vetor+i) = elemento;
-				  ////i++;
-			  ////}
-		  ////}
-		  ////MPI::COMM_WORLD.Bcast(&tam_vetor,1,MPI::INT,0);
-		  ////MPI::COMM_WORLD.Bcast(vetor,tam_vetor,MPI::FLOAT,0);
-		  //for(unsigned int source = 1;source < (unsigned)size;source++)
-		  //{
-			    //MPI::Status mpi_status;
-			    //MPI::COMM_WORLD.Recv(&local_result,1,MPI::FLOAT,source,0,mpi_status);
-			    //cout << endl << source << ": " << local_result;
-			    //total_result += local_result;
-		  //}
-		  //cout << endl << total_result << endl;
-	//}
-	//else
-	//{
-		  ////MPI::COMM_WORLD.Bcast(&tam_vetor,1,MPI::INT,0);
-
-		  ////vetor = (float*)malloc(tam_vetor*sizeof(float));
-		  ////MPI::COMM_WORLD.Bcast(vetor,tam_vetor,MPI::FLOAT,0);
-
-		  //local_tamvetor = tam_vetor/size;
-		  //local_inicio = rank*local_tamvetor;
-		  //local_fim   = local_inicio+local_tamvetor;
-		  //local_result = soma_tree(local_inicio,local_fim,Vetor);
-		  //MPI::COMM_WORLD.Send(&local_result,1,MPI::FLOAT,0,0);
-	//}
