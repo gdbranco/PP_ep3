@@ -1,9 +1,9 @@
 .PHONY: Ep3 BKP
 
-all: Ep3
+all: Ep3 BKP
 
 BKP:
-	g++ -ansi -Wall Ep3bkp.cpp -o BKP
+	mpic++ -ansi -Wall Ep3_.cpp -o Ep3_
 
 Ep3:
 	mpic++ -ansi -Wall Ep3.cpp -o Ep3

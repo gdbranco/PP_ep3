@@ -1,7 +1,6 @@
 #include <iostream>
-#include <cstdlib>
 #include <mpi/mpi.h>
-#include <fstream>
+#include <sys/time.h>
 #define ROOT 0
 using namespace std;
 float soma_tree(unsigned int tam_vetor,float *vetor);
@@ -9,6 +8,7 @@ int main()
 {
 	unsigned int tam_vetor;
 	float *vetor=NULL,elemento;
+	struct timeval start,end;
 	int size,rank;
 	MPI::Status mpi_status;
 	MPI::Init();
@@ -23,6 +23,7 @@ int main()
 	vetor = new float[tam_vetor];
 	if(rank==ROOT)
 	{
+gettimeofday(&start,NULL);
 		for(unsigned int i=0;i<tam_vetor;i++)
 		{
 			cin >> elemento;
@@ -42,7 +43,11 @@ int main()
 	if(rank==ROOT)
 	{
 		float soma = soma_tree(size,somas);
-		cout << "SOMA = " << soma << endl;
+		//cout << "SOMA = " << soma << endl;
+		gettimeofday(&end,NULL);
+		//cout << "SOMA = " << soma << endl;
+		double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+		cout << delta << endl;
 		//for(int i=0;i<size;i++)
 		//{
 			//cout << somas[i] << endl;
@@ -88,3 +93,4 @@ float soma_tree(unsigned int tam_vetor,float *vetor)
 	}
 	return vetor[0];
 }
+
