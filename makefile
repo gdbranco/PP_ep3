@@ -1,13 +1,15 @@
-.PHONY: Ep3 BKP
+.PHONY:
 
-all: Ep3 BKP
+all: Ep3 BKP EP3_SERIAL
 
-BKP:
-	mpic++ -ansi -Wall Ep3_.cpp -o Ep3_
+EP3_SERIAL: Ep3_serial.cpp
+	g++ -ansi -Wall Ep3_serial.cpp -o Ep3_serial.out
 
-Ep3:
-	mpic++ -ansi -Wall Ep3.cpp -o Ep3
+BKP: Ep3_.cpp
+	mpic++ -ansi -Wall Ep3_.cpp -o Ep3_.out
 
-Clean:
-	rm -f Ep3
-	rm -f BKP
+Ep3: Ep3.cpp
+	mpic++ -ansi -Wall Ep3.cpp -o Ep3.out
+
+clean:
+	rm -f *.out

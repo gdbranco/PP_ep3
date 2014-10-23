@@ -1,5 +1,5 @@
 #include <iostream>
-#include <mpi/mpi.h>
+#include <mpi.h>
 #include <sys/time.h>
 #define ROOT 0
 using namespace std;

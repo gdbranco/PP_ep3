@@ -1,5 +1,4 @@
-_bkp/
-EP3
+*.out
 .*.swp
 *.zip
 *.*~

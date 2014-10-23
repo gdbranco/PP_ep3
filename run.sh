@@ -19,7 +19,7 @@ while [ $I -lt 5 ]; do
 			mkdir $OUT_DIRECTORY -p
 		fi
 		while [ $COUNTER -lt $LIMIT ]; do
-			echo $(mpiexec -np ${NUMS_PROC[$I]} Ep3 < ./inputs/inp${INPUTS[$J]}.txt > $OUT_DIRECTORY/${INPUTS[$J]}.csv)
+			echo $(mpiexec -np ${NUMS_PROC[$I]} Ep3_serial < ./inputs/inp${INPUTS[$J]}.txt > $OUT_DIRECTORY/${INPUTS[$J]}.csv)
 			#mpiexec -np ${NUMS_PROC[$I]} -host localhost ./$PROGRAM_NAME < $IN_DIRECTORY/inp${INPUTS[$J]}$IN_EXT >> $OUT_DIRECTORY/${INPUTS[$J]}$OUT_EXE
 			echo "$COUNTER done"
 			COUNTER=$[$COUNTER+1]
